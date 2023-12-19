@@ -1,0 +1,29 @@
+package junglemath
+
+import (
+	"math"
+	"strconv"
+)
+
+func SimplifyRadical(root float64) string {
+
+	rootCoefficient := int64(1)
+	simpleRootInt := root
+
+	for i := float64(2); i <= math.Round(math.Sqrt(root)); i++ {
+		if (simpleRootInt / i) == math.Trunc(simpleRootInt/i) {
+			if !(i == simpleRootInt) && !(i == 1) {
+				if math.Sqrt(simpleRootInt/i) == math.Trunc(math.Sqrt(simpleRootInt/i)) {
+					simpleRootInt = i
+					rootCoefficient = rootCoefficient * int64(math.Sqrt(root/i))
+				}
+			}
+		}
+	}
+
+	rootCoefficientStr := strconv.FormatInt(rootCoefficient, 10)
+	simpleRootIntStr := strconv.FormatFloat(simpleRootInt, 'f', -1, 64)
+
+	return rootCoefficientStr + "√" + simpleRootIntStr
+
+}
