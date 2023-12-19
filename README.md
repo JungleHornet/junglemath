@@ -1,0 +1,1 @@
+I've made junglemath to take math functions from [https://github.com/junglehornet/jungle-calculator](https://github.com/junglehornet/jungle-calculator) and turn them into standalone functions in their own package for easier testing and public use. Enjoy!
