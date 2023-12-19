@@ -1,3 +1,3 @@
-module github.com/JungleHornet/junglemath
+module github.com/junglehornet/junglemath
 
 go 1.21
