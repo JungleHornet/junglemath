@@ -8,9 +8,9 @@ import (
 type format string
 
 const (
-	decimal           format = "dec"
-	radical           format = "rad"
-	simplifiedRadical format = "simpRad"
+	Decimal           format = "dec"
+	Radical           format = "rad"
+	SimplifiedRadical format = "simpRad"
 )
 
 func CalcDistance(x1 float64, y1 float64, x2 float64, y2 float64, format format) string {
@@ -18,9 +18,9 @@ func CalcDistance(x1 float64, y1 float64, x2 float64, y2 float64, format format)
 	/*
 		Calculates the distance between two points using the distance formula.
 		format is the output format you would like to use:
-		dec: returns decimal (string) (ex. "2.82842712475")
-		rad: returns a radical (string) (ex. "√8")
-		simpRad: returns a simplified radical (string) (ex. "2√2")
+		dec: returns Decimal (string) (ex. "2.82842712475")
+		rad: returns a Radical (string) (ex. "√8")
+		simpRad: returns a simplified Radical (string) (ex. "2√2")
 	*/
 
 	a := x2 - x1
@@ -31,13 +31,13 @@ func CalcDistance(x1 float64, y1 float64, x2 float64, y2 float64, format format)
 
 	dist := math.Sqrt(a + b)
 
-	if format == decimal {
+	if format == Decimal {
 		return strconv.FormatFloat(dist, 'f', -1, 64)
 	}
 
 	sqrtDist := "√" + strconv.FormatFloat(math.Round(dist*dist), 'f', -1, 64)
 
-	if format == radical {
+	if format == Radical {
 		return sqrtDist
 	}
 
@@ -60,7 +60,7 @@ func CalcDistance(x1 float64, y1 float64, x2 float64, y2 float64, format format)
 	simpleRoot := strconv.FormatInt(rootCoefficient, 10) + "√" +
 		strconv.FormatFloat(simpleRootInt, 'f', -1, 64)
 
-	if format == simplifiedRadical {
+	if format == SimplifiedRadical {
 		return simpleRoot
 	}
 
