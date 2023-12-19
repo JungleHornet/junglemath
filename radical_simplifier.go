@@ -21,9 +21,14 @@ func SimplifyRadical(root float64) string {
 		}
 	}
 
-	rootCoefficientStr := strconv.FormatInt(rootCoefficient, 10)
-	simpleRootIntStr := strconv.FormatFloat(simpleRootInt, 'f', -1, 64)
+	var simpleRoot string
+	if rootCoefficient == 1 {
+		simpleRoot = "√" + strconv.FormatFloat(root, 'f', -1, 64)
+	} else {
+		simpleRoot = strconv.FormatInt(rootCoefficient, 10) + "√" +
+			strconv.FormatFloat(simpleRootInt, 'f', -1, 64)
+	}
 
-	return rootCoefficientStr + "√" + simpleRootIntStr
+	return simpleRoot
 
 }
