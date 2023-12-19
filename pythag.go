@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-func pythag(leg1, leg2 float64, format format) string {
+func Pythag(leg1, leg2 float64, format format) string {
 
 	leg1 = leg1 * leg1
 	leg2 = leg2 * leg2
