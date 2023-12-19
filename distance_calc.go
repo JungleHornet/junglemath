@@ -13,7 +13,7 @@ const (
 	simplifiedRadical format = "simpRad"
 )
 
-func distanceCalc(x1 float64, y1 float64, x2 float64, y2 float64, format format) string {
+func calcDistance(x1 float64, y1 float64, x2 float64, y2 float64, format format) string {
 
 	/*
 		Calculates the distance between two points using the distance formula.
