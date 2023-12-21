@@ -74,7 +74,7 @@ func CalcDistance3D(x1, y1, z1, x2, y2, z2 float64, format format) string {
 		fmt.Println(err)
 	}
 
-	twoDimDist = twoDimDist * twoDimDist
+	twoDimDist = math.Round(twoDimDist * twoDimDist)
 	c := z2 - z1
 
 	c = c * c
@@ -91,7 +91,7 @@ func CalcDistance3D(x1, y1, z1, x2, y2, z2 float64, format format) string {
 		return sqrtDist
 	}
 
-	root := math.Round(dist * dist)
+	root := dist * dist
 
 	rootCoefficient := int64(1)
 	simpleRootInt := root
