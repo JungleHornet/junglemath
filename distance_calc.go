@@ -1,12 +1,10 @@
 package junglemath
 
 import (
-	"fmt"
 	"math"
-	"strconv"
 )
 
-func CalcDistance(x1 float64, y1 float64, x2 float64, y2 float64) string {
+func CalcDistance(x1 float64, y1 float64, x2 float64, y2 float64) float64 {
 
 	/*
 		Calculates the distance between two points using the distance formula.
@@ -24,15 +22,12 @@ func CalcDistance(x1 float64, y1 float64, x2 float64, y2 float64) string {
 
 	dist := math.Sqrt(a + b)
 
-	return strconv.FormatFloat(dist, 'f', -1, 64)
+	return dist
 
 }
 
-func CalcDistance3D(x1, y1, z1, x2, y2, z2 float64) string {
-	twoDimDist, err := strconv.ParseFloat(CalcDistance(x1, y1, x2, y2), 64)
-	if err != nil {
-		fmt.Println(err)
-	}
+func CalcDistance3D(x1, y1, z1, x2, y2, z2 float64) float64 {
+	twoDimDist := CalcDistance(x1, y1, x2, y2)
 
 	twoDimDist = math.Round(twoDimDist * twoDimDist)
 	c := z2 - z1
@@ -41,5 +36,5 @@ func CalcDistance3D(x1, y1, z1, x2, y2, z2 float64) string {
 
 	dist := math.Sqrt(twoDimDist + c)
 
-	return strconv.FormatFloat(dist, 'f', -1, 64)
+	return dist
 }
