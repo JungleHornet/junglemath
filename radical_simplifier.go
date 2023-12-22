@@ -35,9 +35,9 @@ func SimplifyRadical(root float64) string {
 
 func CreateRoot(inpt float64) (string, bool) {
 
-	root := math.Round(inpt * inpt)
+	root := inpt * inpt
 
-	if root != math.Trunc(root) {
+	if root != math.Trunc(root) || root == 0 {
 		return "", false
 	}
 
