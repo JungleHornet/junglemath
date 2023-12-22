@@ -32,3 +32,16 @@ func SimplifyRadical(root float64) string {
 	return simpleRoot
 
 }
+
+func CreateRoot(inpt float64) (string, bool) {
+
+	root := math.Round(inpt * inpt)
+
+	if root != math.Trunc(root) {
+		return "", false
+	}
+
+	sqrtRoot := "√" + strconv.FormatFloat(root, 'f', -1, 64)
+
+	return sqrtRoot, true
+}
