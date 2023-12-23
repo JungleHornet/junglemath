@@ -39,11 +39,13 @@ func Solve(equation string) float64 {
 		fmt.Println(equation)
 	} else {
 		regex2 := regexp.MustCompile("(-?\\d*.?\\d*)\\*(-?\\d*.?\\d*)")
-		for mult := regex2.FindStringSubmatch(equation); mult[0] != ""; mult = regex2.FindStringSubmatch(equation) {
+		for mult := regex2.FindStringSubmatch(equation); mult != nil; mult = regex2.FindStringSubmatch(equation) {
 			mult1, _ := strconv.ParseFloat(mult[1], 64)
 			mult2, _ := strconv.ParseFloat(mult[2], 64)
 			multRes := strconv.FormatFloat(mult1*mult2, 'f', -1, 64)
 			equation = strings.Replace(equation, mult[0], multRes, -1)
+			fmt.Println(equation)
+			fmt.Println(multRes)
 		}
 	}
 	ans, err := strconv.ParseFloat(equation, 64)
