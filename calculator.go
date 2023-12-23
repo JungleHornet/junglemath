@@ -29,22 +29,30 @@ func Solve(equation string) float64 {
 	*/
 	regex1 := regexp.MustCompile("\\(.*\\)")
 	equation = strings.ReplaceAll(equation, " ", "")
-	for inParentheses := regex1.FindString(equation); inParentheses != ""; inParentheses = regex1.FindString(equation) {
+	solved := false
+	for !solved {
+		inParentheses := regex1.FindString(equation)
 		inParentheses = strings.TrimLeft(inParentheses, "(")
 		inParentheses = strings.TrimRight(inParentheses, ")")
 		ans := Solve(inParentheses)
 		fmt.Println(ans)
 		equation = strings.Replace(equation, "("+inParentheses+")", strconv.FormatFloat(ans, 'f', -1, 64), -1)
+		if !strings.Contains(equation, "(") {
+			solved = true
+		}
 	}
-
-	regex2 := regexp.MustCompile("(-?\\d*.?\\d*)\\*(-?\\d*.?\\d*)")
-	for mult := regex2.FindStringSubmatch(equation); mult != nil; mult = regex2.FindStringSubmatch(equation) {
+	solved = false
+	for !solved {
+		regex2 := regexp.MustCompile("(-?\\d*.?\\d*)\\*(-?\\d*.?\\d*)")
+		mult := regex2.FindStringSubmatch(equation)
 		mult1, _ := strconv.ParseFloat(mult[1], 64)
 		mult2, _ := strconv.ParseFloat(mult[2], 64)
 		multRes := strconv.FormatFloat(mult1*mult2, 'f', -1, 64)
 		equation = strings.Replace(equation, mult[0], multRes, -1)
+		if !strings.Contains(equation, "*") {
+			solved = true
+		}
 	}
-
 	ans, _ := strconv.ParseFloat(equation, 64)
 	return ans
 }
