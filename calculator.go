@@ -29,9 +29,15 @@ func Solve(equation string) float64 {
 	*/
 	regex1 := regexp.MustCompile("\\(.*\\)")
 	equation = strings.ReplaceAll(equation, " ", "")
-	solved := false
+	inParentheses := regex1.FindString(equation)
+	var solved bool
+	if inParentheses == "" {
+		solved = true
+	} else {
+		solved = false
+	}
 	for !solved {
-		inParentheses := regex1.FindString(equation)
+		inParentheses = regex1.FindString(equation)
 		inParentheses = strings.TrimPrefix(inParentheses, "(")
 		inParentheses = strings.TrimSuffix(inParentheses, ")")
 		ans := Solve(inParentheses)
