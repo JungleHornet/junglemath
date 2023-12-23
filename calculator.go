@@ -1,6 +1,7 @@
 package junglemath
 
 import (
+	"fmt"
 	"github.com/junglehornet/goScan"
 	"regexp"
 	"strconv"
@@ -32,6 +33,7 @@ func Solve(equation string) float64 {
 		inParentheses = strings.TrimLeft(inParentheses, "(")
 		inParentheses = strings.TrimRight(inParentheses, ")")
 		ans := Solve(inParentheses)
+		fmt.Println(ans)
 		equation = strings.Replace(equation, "("+inParentheses+")", strconv.FormatFloat(ans, 'f', -1, 64), -1)
 	}
 
