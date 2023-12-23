@@ -1,9 +1,7 @@
 package junglemath
 
 import (
-	"fmt"
 	"github.com/junglehornet/goScan"
-	"log"
 	"regexp"
 	"strconv"
 	"strings"
@@ -31,12 +29,15 @@ func Solve(equation string) float64 {
 	regex1 := regexp.MustCompile("\\(.*\\)")
 	equation = strings.ReplaceAll(equation, " ", "")
 	inParentheses := regex1.FindString(equation)
-	if inParentheses != "" {
-		inParentheses = strings.TrimLeft(inParentheses, "(")
-		inParentheses = strings.TrimRight(inParentheses, ")")
-		ans := Solve(inParentheses)
-		equation = strings.Replace(equation, "("+inParentheses+")", strconv.FormatFloat(ans, 'f', -1, 64), -1)
-	} else {
+	solved := false
+	for !solved {
+		if inParentheses != "" {
+			inParentheses = strings.TrimLeft(inParentheses, "(")
+			inParentheses = strings.TrimRight(inParentheses, ")")
+			ans := Solve(inParentheses)
+			equation = strings.Replace(equation, "("+inParentheses+")", strconv.FormatFloat(ans, 'f', -1, 64), -1)
+		}
+
 		regex2 := regexp.MustCompile("(-?\\d*.?\\d*)\\*(-?\\d*.?\\d*)")
 		for mult := regex2.FindStringSubmatch(equation); mult != nil; mult = regex2.FindStringSubmatch(equation) {
 			mult1, _ := strconv.ParseFloat(mult[1], 64)
@@ -44,13 +45,12 @@ func Solve(equation string) float64 {
 			multRes := strconv.FormatFloat(mult1*mult2, 'f', -1, 64)
 			equation = strings.Replace(equation, mult[0], multRes, -1)
 		}
+		_, err := strconv.ParseFloat(equation, 64)
+		if err == nil {
+			solved = true
+		}
 	}
-	fmt.Println("equation is " + equation)
-	ans, err := strconv.ParseFloat(equation, 64)
-	if err != nil {
-		fmt.Println("Error: Unable to parse final equation.")
-		log.Fatal(err)
-	}
-	fmt.Println("ans is: ")
+
+	ans, _ := strconv.ParseFloat(equation, 64)
 	return ans
 }
