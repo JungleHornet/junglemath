@@ -30,12 +30,12 @@ func Solve(equation string) float64 {
 	*/
 	regex1 := regexp.MustCompile("\\(.*\\)")
 	equation = strings.ReplaceAll(equation, " ", "")
-	inParenthese := regex1.FindString(equation)
-	if inParenthese != "" {
-		inParenthese = strings.TrimLeft(inParenthese, "(")
-		inParenthese = strings.TrimRight(inParenthese, ")")
-		ans := Solve(inParenthese)
-		equation = strings.Replace(equation, "("+inParenthese+")", strconv.FormatFloat(ans, 'f', -1, 64), -1)
+	inParentheses := regex1.FindString(equation)
+	if inParentheses != "" {
+		inParentheses = strings.TrimLeft(inParentheses, "(")
+		inParentheses = strings.TrimRight(inParentheses, ")")
+		ans := Solve(inParentheses)
+		equation = strings.Replace(equation, "("+inParentheses+")", strconv.FormatFloat(ans, 'f', -1, 64), -1)
 	} else {
 		regex2 := regexp.MustCompile("(-?\\d*.?\\d*)\\*(-?\\d*.?\\d*)")
 		for mult := regex2.FindStringSubmatch(equation); mult != nil; mult = regex2.FindStringSubmatch(equation) {
@@ -49,7 +49,7 @@ func Solve(equation string) float64 {
 	fmt.Println(ans)
 	if err != nil {
 		fmt.Println("Error: Unable to parse final equation.")
-		log.Fatal()
+		log.Fatal(err)
 	}
 	return ans
 }
