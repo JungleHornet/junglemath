@@ -19,7 +19,7 @@ func OpenCalculator() {
 
 	for inpt != "q" {
 		inpt = s.ReadLine()
-		println(Solve(inpt))
+		println(strconv.FormatFloat(Solve(inpt), 'f', -1, 64))
 	}
 	return
 }
@@ -36,7 +36,6 @@ func Solve(equation string) float64 {
 		inParenthese = strings.TrimRight(inParenthese, ")")
 		ans := Solve(inParenthese)
 		equation = strings.Replace(equation, "("+inParenthese+")", strconv.FormatFloat(ans, 'f', -1, 64), -1)
-		fmt.Println(equation)
 	} else {
 		regex2 := regexp.MustCompile("(-?\\d*.?\\d*)\\*(-?\\d*.?\\d*)")
 		for mult := regex2.FindStringSubmatch(equation); mult != nil; mult = regex2.FindStringSubmatch(equation) {
