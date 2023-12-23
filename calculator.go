@@ -19,7 +19,7 @@ func OpenCalculator() {
 
 	for inpt != "q" {
 		inpt = s.ReadLine()
-		println(strconv.FormatFloat(Solve(inpt), 'f', -1, 64))
+		fmt.Println(strconv.FormatFloat(Solve(inpt), 'f', -1, 64))
 	}
 	return
 }
@@ -29,43 +29,81 @@ func Solve(equation string) float64 {
 		Solves an equation with order of operations like 8 * (2*3 + 4).
 	*/
 	equation = strings.ReplaceAll(equation, " ", "")
-	inParentheses := GetParentheses(equation)
+	inParentheses, isParentheses := GetParentheses(equation)
 	var solved bool
-	if inParentheses == "" {
+	if isParentheses == false {
 		solved = true
 	} else {
 		solved = false
 	}
 	for !solved {
-		inParentheses = GetParentheses(equation)
-		inParentheses = strings.TrimPrefix(inParentheses, "(")
-		inParentheses = strings.TrimSuffix(inParentheses, ")")
+		inParentheses, _ = GetParentheses(equation)
 		ans := Solve(inParentheses)
-		fmt.Println(ans)
 		equation = strings.Replace(equation, "("+inParentheses+")", strconv.FormatFloat(ans, 'f', -1, 64), -1)
 		if !strings.Contains(equation, "(") {
 			solved = true
 		}
 	}
 	solved = false
+	regex1 := regexp.MustCompile("(-?\\d*\\.?\\d*)\\*(-?\\d*\\.?\\d*)")
 	for !solved {
-		regex1 := regexp.MustCompile("(-?\\d*\\.?\\d*)\\*(-?\\d*\\.?\\d*)")
-		fmt.Println(equation)
+		if !strings.Contains(equation, "*") {
+			solved = true
+			break
+		}
 		mult := regex1.FindStringSubmatch(equation)
-		fmt.Println(mult)
 		mult1, _ := strconv.ParseFloat(mult[1], 64)
 		mult2, _ := strconv.ParseFloat(mult[2], 64)
 		multRes := strconv.FormatFloat(mult1*mult2, 'f', -1, 64)
 		equation = strings.Replace(equation, mult[0], multRes, -1)
-		if !strings.Contains(equation, "*") {
+	}
+	solved = false
+	regex2 := regexp.MustCompile("(-?\\d*\\.?\\d*)/(-?\\d*\\.?\\d*)")
+	for !solved {
+		if !strings.Contains(equation, "/") {
 			solved = true
+			break
 		}
+		div := regex2.FindStringSubmatch(equation)
+		mult1, _ := strconv.ParseFloat(div[1], 64)
+		mult2, _ := strconv.ParseFloat(div[2], 64)
+		multRes := strconv.FormatFloat(mult1/mult2, 'f', -1, 64)
+		equation = strings.Replace(equation, div[0], multRes, -1)
+	}
+	solved = false
+	regex3 := regexp.MustCompile("(-?\\d*\\.?\\d*)\\+(-?\\d*\\.?\\d*)")
+	for !solved {
+		if !strings.Contains(equation, "+") {
+			solved = true
+			break
+		}
+		plus := regex3.FindStringSubmatch(equation)
+		mult1, _ := strconv.ParseFloat(plus[1], 64)
+		mult2, _ := strconv.ParseFloat(plus[2], 64)
+		multRes := strconv.FormatFloat(mult1+mult2, 'f', -1, 64)
+		equation = strings.Replace(equation, plus[0], multRes, -1)
+	}
+	solved = false
+	regex4 := regexp.MustCompile("(-?\\d*\\.?\\d*)-(-?\\d*\\.?\\d*)")
+	for !solved {
+		if !strings.Contains(equation, "-") {
+			solved = true
+			break
+		}
+		minus := regex4.FindStringSubmatch(equation)
+		mult1, _ := strconv.ParseFloat(minus[1], 64)
+		mult2, _ := strconv.ParseFloat(minus[2], 64)
+		multRes := strconv.FormatFloat(mult1-mult2, 'f', -1, 64)
+		equation = strings.Replace(equation, minus[0], multRes, -1)
 	}
 	ans, _ := strconv.ParseFloat(equation, 64)
 	return ans
 }
 
-func GetParentheses(inpt string) string {
+func GetParentheses(inpt string) (string, bool) {
+	if !strings.Contains(inpt, "(") {
+		return "", false
+	}
 	var s scanner.Scanner
 	s.Init(strings.NewReader(inpt))
 	var inParantheses string
@@ -88,5 +126,5 @@ func GetParentheses(inpt string) string {
 		}
 
 	}
-	return inParantheses
+	return inParantheses, true
 }
