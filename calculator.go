@@ -1,7 +1,9 @@
 package junglemath
 
 import (
+	"fmt"
 	"github.com/junglehornet/goScan"
+	"log"
 	"regexp"
 	"strconv"
 	"strings"
@@ -36,13 +38,17 @@ func Solve(equation string) float64 {
 		equation = strings.Replace(equation, "("+inParenthese+")", strconv.FormatFloat(ans, 'f', -1, 64), -1)
 	} else {
 		regex2 := regexp.MustCompile("(-?\\d*.?\\d*)\\*(-?\\d*.?\\d*)")
-		mult := regex2.FindStringSubmatch(equation)
-		if mult[0] != "" {
+		for mult := regex2.FindStringSubmatch(equation); mult[0] != ""; mult = regex2.FindStringSubmatch(equation) {
 			mult1, _ := strconv.ParseFloat(mult[1], 64)
 			mult2, _ := strconv.ParseFloat(mult[2], 64)
 			multRes := strconv.FormatFloat(mult1*mult2, 'f', -1, 64)
 			equation = strings.Replace(equation, mult[0], multRes, -1)
 		}
 	}
-	return 0
+	ans, err := strconv.ParseFloat(equation, 64)
+	if err != nil {
+		fmt.Println("Error: Unable to parse final equation.")
+		log.Fatal()
+	}
+	return ans
 }
