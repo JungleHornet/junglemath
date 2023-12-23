@@ -52,6 +52,7 @@ func Solve(equation string) float64 {
 		regex2 := regexp.MustCompile("(-?\\d*.?\\d*)\\*(-?\\d*.?\\d*)")
 		fmt.Println(equation)
 		mult := regex2.FindStringSubmatch(equation)
+		fmt.Println(mult)
 		mult1, _ := strconv.ParseFloat(mult[1], 64)
 		mult2, _ := strconv.ParseFloat(mult[2], 64)
 		multRes := strconv.FormatFloat(mult1*mult2, 'f', -1, 64)
