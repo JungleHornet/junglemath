@@ -28,9 +28,8 @@ func Solve(equation string) float64 {
 	/*
 		Solves an equation with order of operations like 8 * (2*3 + 4).
 	*/
-	regex1 := regexp.MustCompile("\\(.*\\)")
 	equation = strings.ReplaceAll(equation, " ", "")
-	inParentheses := regex1.FindString(equation)
+	inParentheses := GetParentheses(equation)
 	var solved bool
 	if inParentheses == "" {
 		solved = true
@@ -38,7 +37,7 @@ func Solve(equation string) float64 {
 		solved = false
 	}
 	for !solved {
-		inParentheses = regex1.FindString(equation)
+		inParentheses = GetParentheses(equation)
 		inParentheses = strings.TrimPrefix(inParentheses, "(")
 		inParentheses = strings.TrimSuffix(inParentheses, ")")
 		ans := Solve(inParentheses)
@@ -50,9 +49,9 @@ func Solve(equation string) float64 {
 	}
 	solved = false
 	for !solved {
-		regex2 := regexp.MustCompile("(-?\\d*\\.?\\d*)\\*(-?\\d*\\.?\\d*)")
+		regex1 := regexp.MustCompile("(-?\\d*\\.?\\d*)\\*(-?\\d*\\.?\\d*)")
 		fmt.Println(equation)
-		mult := regex2.FindStringSubmatch(equation)
+		mult := regex1.FindStringSubmatch(equation)
 		fmt.Println(mult)
 		mult1, _ := strconv.ParseFloat(mult[1], 64)
 		mult2, _ := strconv.ParseFloat(mult[2], 64)
@@ -66,13 +65,28 @@ func Solve(equation string) float64 {
 	return ans
 }
 
-func GetParentheses(inpt string) {
+func GetParentheses(inpt string) string {
 	var s scanner.Scanner
 	s.Init(strings.NewReader(inpt))
+	var inParantheses string
+	var paranMode int
+	paranMode = 0
 
 	for token := s.Scan(); token != scanner.EOF; token = s.Scan() {
-		text := s.TokenText()
-		fmt.Println(token)
-		fmt.Println(text)
+		if token == ')' {
+			paranMode -= 1
+			if paranMode == 0 {
+				break
+			}
+		}
+		if paranMode > 0 {
+			inParantheses += s.TokenText()
+		}
+
+		if token == '(' {
+			paranMode += 1
+		}
+
 	}
+	return inParantheses
 }
