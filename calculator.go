@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"text/scanner"
 )
 
 func OpenCalculator() {
@@ -63,4 +64,15 @@ func Solve(equation string) float64 {
 	}
 	ans, _ := strconv.ParseFloat(equation, 64)
 	return ans
+}
+
+func GetParentheses(inpt string) {
+	var s scanner.Scanner
+	s.Init(strings.NewReader(inpt))
+
+	for token := s.Scan(); token != scanner.EOF; token = s.Scan() {
+		text := s.TokenText()
+		fmt.Println(token)
+		fmt.Println(text)
+	}
 }
