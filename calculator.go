@@ -32,8 +32,8 @@ func Solve(equation string) float64 {
 	solved := false
 	for !solved {
 		inParentheses := regex1.FindString(equation)
-		inParentheses = strings.TrimLeft(inParentheses, "(")
-		inParentheses = strings.TrimRight(inParentheses, ")")
+		inParentheses = strings.TrimPrefix(inParentheses, "(")
+		inParentheses = strings.TrimSuffix(inParentheses, ")")
 		ans := Solve(inParentheses)
 		fmt.Println(ans)
 		equation = strings.Replace(equation, "("+inParentheses+")", strconv.FormatFloat(ans, 'f', -1, 64), -1)
