@@ -44,11 +44,10 @@ func Solve(equation string) float64 {
 			mult2, _ := strconv.ParseFloat(mult[2], 64)
 			multRes := strconv.FormatFloat(mult1*mult2, 'f', -1, 64)
 			equation = strings.Replace(equation, mult[0], multRes, -1)
-			fmt.Println(equation)
-			fmt.Println(multRes)
 		}
 	}
 	ans, err := strconv.ParseFloat(equation, 64)
+	fmt.Println(ans)
 	if err != nil {
 		fmt.Println("Error: Unable to parse final equation.")
 		log.Fatal()
