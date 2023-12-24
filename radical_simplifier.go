@@ -10,12 +10,15 @@ func SimplifyRadical(root float64) string {
 	rootCoefficient := int64(1)
 	simpleRootInt := root
 
-	for i := float64(2); i <= math.Round(math.Sqrt(root)); i++ {
+	for i := float64(2); i <= math.Ceil(math.Sqrt(root)); i++ {
 		if (simpleRootInt / i) == math.Trunc(simpleRootInt/i) {
-			if !(i == simpleRootInt) && !(i == 1) {
+			if !(i == simpleRootInt) {
 				if math.Sqrt(simpleRootInt/i) == math.Trunc(math.Sqrt(simpleRootInt/i)) {
 					simpleRootInt = i
 					rootCoefficient = rootCoefficient * int64(math.Sqrt(root/i))
+				} else if math.Sqrt(i) == math.Trunc(math.Sqrt(i)) {
+					simpleRootInt = simpleRootInt / i
+					rootCoefficient = rootCoefficient * int64(math.Sqrt(i))
 				}
 			}
 		}
