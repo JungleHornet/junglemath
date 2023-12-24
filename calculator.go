@@ -3,6 +3,7 @@ package junglemath
 import (
 	"fmt"
 	"github.com/junglehornet/goScan"
+	"math"
 	"regexp"
 	"strconv"
 	"strings"
@@ -44,6 +45,19 @@ func Solve(equation string) float64 {
 		if !strings.Contains(equation, "(") {
 			solved = true
 		}
+	}
+	solved = false
+	expRegex := regexp.MustCompile("(-?\\d*\\.?\\d*)\\^(-?\\d*\\.?\\d*)")
+	for !solved {
+		if !strings.Contains(equation, "^") {
+			solved = true
+			break
+		}
+		exp := expRegex.FindStringSubmatch(equation)
+		num1, _ := strconv.ParseFloat(exp[1], 64)
+		num2, _ := strconv.ParseFloat(exp[2], 64)
+		result := strconv.FormatFloat(math.Pow(num1, num2), 'f', -1, 64)
+		equation = strings.Replace(equation, exp[0], result, -1)
 	}
 	solved = false
 	regex1 := regexp.MustCompile("(-?\\d*\\.?\\d*)\\*(-?\\d*\\.?\\d*)")
