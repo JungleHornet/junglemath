@@ -6,8 +6,8 @@ func GetOrthocenter(x1, y1, x2, y2, x3, y3 float64) (float64, float64) {
 	X1, Y1 := GetCentroid(x1, y1, x2, y2, x3, y3)
 	X2, Y2 := GetCircumcenter(x1, y1, x2, y2, x3, y3)
 	
-	x := (3 * X2) - (2 * X1) / (3 - 2)
-	y := (3 * Y2) - (2 * Y1) / (3 - 2)
+	x := (3 * X1) - (2 * X2)
+	y := (3 * Y1) - (2 * Y2)
 
 	return x, y
 }
@@ -19,14 +19,12 @@ func GetCentroid(x1, y1, x2, y2, x3, y3 float64) (float64, float64) {
 }
 
 func GetCircumcenter(x1, y1, x2, y2, x3, y3 float64) (float64, float64) {
-	a := CalcDistance(x1, y1, x2, y2)
-	b := CalcDistance(x2, y2, x3, y3)
-	c := CalcDistance(x3, y3, x1, y1)
-	A := math.Acos((math.Pow(a, 2) + math.Pow(b, 2) - math.Pow(c, 2)) / (2 * b * c))
-	B := math.Acos((math.Pow(a, 2) + math.Pow(b, 2) - math.Pow(c, 2)) / (2 * a * c))
-	C := math.Acos((math.Pow(a, 2) + math.Pow(b, 2) - math.Pow(c, 2)) / (2 * a * b))
+	t := math.Pow(x1, 2) + math.Pow(y1, 2) - math.Pow(x2, 2) - math.Pow(y2, 2)
+	u := math.Pow(x1, 2) + math.Pow(y1, 2) - math.Pow(x3, 2) - math.Pow(y3, 2)
+	J := (x1 - x2) * (y1 - y3) - (x1 - x3) * (y1 - y2)
 
-	x := (x1 * math.Sin(2 * A) + x2 * math.Sin(2 * B) + x3 * math.Sin(2 * C)) / (math.Sin(2 * A) + math.Sin(2 * B) + math.Sin(2 * C))
-	y := (y1 * math.Sin(2 * A) + y2 * math.Sin(2 * B) + y3 * math.Sin(2 * C)) / (math.Sin(2 * A) + math.Sin(2 * B) + math.Sin(2 * C))
+	x := ((-1 * (y1 - y2)) * u + (y1 - y3) * t) / (2 * J)
+	y := ((x1 - x2) * u - (x1 - x3) * t) / (2 * J)
+
 	return x, y
 }
