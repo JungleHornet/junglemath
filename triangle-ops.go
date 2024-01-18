@@ -21,8 +21,13 @@ func GetCentroid(x1, y1, x2, y2, x3, y3 float64) (float64, float64) {
 }
 
 func GetIncenter(x1, y1, x2, y2, x3, y3 float64) (float64, float64) {
-	x := (x1 + x2 + x3) / 3
-	y := (y1 + y2 + y3) / 3
+	a := CalcDistance(x2, y2, x3, y3)
+	b := CalcDistance(x1, y1, x3, y3)
+	c := CalcDistance(x1, y1, x2, y2)
+
+	x := (a * x1 + b * x2 + c * x3) / (a + b + c)
+	y := (a * y1 + b * y2 + c * y3) / (a + b + c)
+
 	return x, y
 }
 
