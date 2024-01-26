@@ -185,7 +185,7 @@ func SolveRoots(equation string) string {
 		root := rootRegex.FindStringSubmatch(equation)
 		num1, _ := strconv.ParseFloat(root[1], 64)
 		num2, _ := strconv.ParseFloat(root[2], 64)
-		result := strconv.FormatFloat(Root(num1, num2) , 'f', -1, 64)
+		result := strconv.FormatFloat(Root(num1, num2), 'f', -1, 64)
 		equation = strings.Replace(equation, root[0], result, -1)
 	}
 	return equation
