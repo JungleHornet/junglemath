@@ -10,7 +10,7 @@ func SimplifyRadical(root float64) string {
 	rootCoefficient := int64(1)
 	simpleRootInt := root
 
-	for i := float64(2); i <= math.Ceil(math.Sqrt(root)); i++ {
+	for i := float64(2); i <= (math.Ceil(math.Sqrt(root))); i++ {
 		if (simpleRootInt / i) == math.Trunc(simpleRootInt/i) {
 			if !(i == simpleRootInt) {
 				if math.Sqrt(simpleRootInt/i) == math.Trunc(math.Sqrt(simpleRootInt/i)) {
@@ -20,6 +20,7 @@ func SimplifyRadical(root float64) string {
 					simpleRootInt = simpleRootInt / i
 					rootCoefficient = rootCoefficient * int64(math.Sqrt(i))
 				}
+				i = 2
 			}
 		}
 	}
