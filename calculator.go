@@ -2,27 +2,42 @@ package junglemath
 
 import (
 	"fmt"
-	"github.com/junglehornet/goScan"
 	"math"
 	"regexp"
 	"strconv"
 	"strings"
 	"text/scanner"
+	"github.com/junglehornet/goScan"
 )
 
 func OpenCalculator() {
 	/*
 		Opens a calculator where you can solve equations with order of operations like 8 * (2*3 + 4).
 		Enter "q" to exit.
+
+		To Add: +
+		To Subtract: -
+		To Multiply: *
+		To Divide: /
+		To # Root: #r<number>
 	*/
 	s := goScan.NewScanner()
-	var inpt string
+	inpt := s.ReadLine()
+	first := true
+	var ans string
+	normalChars := "0123456789"
 
 	for inpt != "q" {
+		if !strings.Contains(normalChars, string([]rune(inpt)[0])) {
+			if !first {
+				inpt = ans + inpt
+			}
+		}
+		ans = strconv.FormatFloat(Solve(inpt), 'f', -1, 64)
+		fmt.Println("=" + ans)
+		first = false
 		inpt = s.ReadLine()
-		fmt.Println(strconv.FormatFloat(Solve(inpt), 'f', -1, 64))
 	}
-	return
 }
 
 func Solve(equation string) float64 {
@@ -31,15 +46,15 @@ func Solve(equation string) float64 {
 	*/
 	equation = strings.ReplaceAll(equation, " ", "")
 	equation = PrepEquation(equation)
-	inParentheses, isParentheses := GetParentheses(equation)
+	_, isParentheses := GetParentheses(equation)
 	var solved bool
-	if isParentheses == false {
-		solved = true
-	} else {
+	if isParentheses {
 		solved = false
+	} else {
+		solved = true
 	}
 	for !solved {
-		inParentheses, _ = GetParentheses(equation)
+		inParentheses, _ := GetParentheses(equation)
 		ans := Solve(inParentheses)
 		equation = strings.Replace(equation, "("+inParentheses+")", strconv.FormatFloat(ans, 'f', -1, 64), -1)
 		if !strings.Contains(equation, "(") {
@@ -47,7 +62,7 @@ func Solve(equation string) float64 {
 		}
 	}
 	solved = false
-	expRegex := regexp.MustCompile("(-?\\d*\\.?\\d*)\\^(-?\\d*\\.?\\d*)")
+	expRegex := regexp.MustCompile(`(-?\d*\.?\d*)\^(-?\d*\.?\d*)`)
 	for !solved {
 		if !strings.Contains(equation, "^") {
 			solved = true
@@ -60,7 +75,7 @@ func Solve(equation string) float64 {
 		equation = strings.Replace(equation, exp[0], result, -1)
 	}
 	solved = false
-	regex1 := regexp.MustCompile("(-?\\d*\\.?\\d*)\\*(-?\\d*\\.?\\d*)")
+	regex1 := regexp.MustCompile(`(-?\d*\.?\d*)\*(-?\d*\.?\d*)`)
 	for !solved {
 		if !strings.Contains(equation, "*") {
 			solved = true
@@ -73,7 +88,7 @@ func Solve(equation string) float64 {
 		equation = strings.Replace(equation, mult[0], result, -1)
 	}
 	solved = false
-	regex2 := regexp.MustCompile("(-?\\d*\\.?\\d*)/(-?\\d*\\.?\\d*)")
+	regex2 := regexp.MustCompile(`(-?\d*\.?\d*)/(-?\d*\.?\d*)`)
 	for !solved {
 		if !strings.Contains(equation, "/") {
 			solved = true
@@ -86,7 +101,7 @@ func Solve(equation string) float64 {
 		equation = strings.Replace(equation, div[0], result, -1)
 	}
 	solved = false
-	regex3 := regexp.MustCompile("(-?\\d*\\.?\\d*)\\+(-?\\d*\\.?\\d*)")
+	regex3 := regexp.MustCompile(`(-?\d*\.?\d*)\+(-?\d*\.?\d*)`)
 	for !solved {
 		if !strings.Contains(equation, "+") {
 			solved = true
@@ -99,7 +114,7 @@ func Solve(equation string) float64 {
 		equation = strings.Replace(equation, plus[0], result, -1)
 	}
 	solved = false
-	regex4 := regexp.MustCompile("(-?\\d*\\.?\\d*)min(-?\\d*\\.?\\d*)")
+	regex4 := regexp.MustCompile(`(-?\d*\.?\d*)min(-?\d*\.?\d*)`)
 	for !solved {
 		if !strings.Contains(equation, "min") {
 			solved = true
@@ -117,7 +132,8 @@ func Solve(equation string) float64 {
 
 func PrepEquation(equation string) string {
 	equation = "(" + equation + ")"
-	re := regexp.MustCompile("\\((-?\\d*\\.?\\d*)")
+	equation = SolveRoots(equation)
+	re := regexp.MustCompile(`\((-?\d*\.?\d*)`)
 	res := re.FindString(equation)
 	newRes := strings.Replace(res, "-", "neg", -1)
 	equation = strings.Replace(equation, res, newRes, -1)
@@ -156,4 +172,30 @@ func GetParentheses(inpt string) (string, bool) {
 
 	}
 	return inParantheses, true
+}
+
+func SolveRoots(equation string) string {
+	solved := false
+	rootRegex := regexp.MustCompile(`(-?\d*\.?\d*)?r(-?\d*\.?\d*)`)
+	for !solved {
+		if !strings.Contains(equation, "r") {
+			solved = true
+			break
+		}
+		root := rootRegex.FindStringSubmatch(equation)
+		num1, _ := strconv.ParseFloat(root[1], 64)
+		num2, _ := strconv.ParseFloat(root[2], 64)
+		result := strconv.FormatFloat(Root(num1, num2) , 'f', -1, 64)
+		equation = strings.Replace(equation, root[0], result, -1)
+	}
+	return equation
+}
+
+func Root(x, y float64) float64 {
+	/*
+	Returns x√y
+	*/
+	exp := 1 / x
+	ans := math.Pow(y, exp)
+	return ans
 }
