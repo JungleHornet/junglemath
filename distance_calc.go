@@ -4,32 +4,27 @@ import (
 	"math"
 )
 
-func CalcDistance(x1 float64, y1 float64, x2 float64, y2 float64) float64 {
-
+func (l *Line) length() float64 {
 	/*
 		Calculates the distance between two points using the distance formula.
 	*/
 
+	x1 := l.P1.X
+	y1 := l.P1.Y
+	z1 := l.P1.Z
+	x2 := l.P2.X
+	y2 := l.P2.Y
+	z2 := l.P2.Z
+
 	a := x2 - x1
 	b := y2 - y1
+	c := z2 - z1
 
 	a = a * a
 	b = b * b
-
-	dist := math.Sqrt(a + b)
-
-	return dist
-}
-
-func CalcDistance3D(x1, y1, z1, x2, y2, z2 float64) float64 {
-	twoDimDist := CalcDistance(x1, y1, x2, y2)
-
-	twoDimDist = math.Round(twoDimDist * twoDimDist)
-	c := z2 - z1
-
 	c = c * c
 
-	dist := math.Sqrt(twoDimDist + c)
+	dist := math.Sqrt(a + b + c)
 
 	return dist
 }

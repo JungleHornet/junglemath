@@ -5,10 +5,11 @@ import (
 	"strconv"
 )
 
-func SimplifyRadical(root float64) string {
+func (r *Radical) SimplifyRadical() string {
 
-	rootCoefficient := int64(1)
-	simpleRootInt := root
+	rootCoefficient := r.Coef
+	simpleRootInt := r.Rad
+	root := r.Rad
 
 	for i := float64(2); i <= (math.Ceil(math.Sqrt(root))); i++ {
 		if (simpleRootInt / i) == math.Trunc(simpleRootInt/i) {
@@ -37,15 +38,15 @@ func SimplifyRadical(root float64) string {
 
 }
 
-func CreateRoot(inpt float64) (string, bool) {
+func CreateRoot(inpt float64) (Radical, bool) {
 
 	root := inpt * inpt
 
 	if root != math.Trunc(root) || root == 0 {
-		return "", false
+		return Radical{}, false
 	}
 
-	sqrtRoot := "√" + strconv.FormatFloat(root, 'f', -1, 64)
+	sqrtRoot := Radical{1, root}
 
 	return sqrtRoot, true
 }
