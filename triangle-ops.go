@@ -4,40 +4,49 @@ import (
 	"math"
 )
 
-func GetOrthocenter(x1, y1, x2, y2, x3, y3 float64) (float64, float64) {
-	X1, Y1 := GetCentroid(x1, y1, x2, y2, x3, y3)
-	X2, Y2 := GetCircumcenter(x1, y1, x2, y2, x3, y3)
-	
-	x := (3 * X1) - (2 * X2)
-	y := (3 * Y1) - (2 * Y2)
+func (t *Triangle) Orthocenter() Point {
+	P1 := t.Centroid()
+	P2 := t.Circumcenter()
 
-	return x, y
+	x := (3 * P1.X) - (2 * P2.X)
+	y := (3 * P1.Y) - (2 * P2.Y)
+
+	return Point{X: x, Y: y}
 }
 
-func GetCentroid(x1, y1, x2, y2, x3, y3 float64) (float64, float64) {
-	x := (x1 + x2 + x3) / 3
-	y := (y1 + y2 + y3) / 3
-	return x, y
+func (t *Triangle) Centroid() Point {
+	x := (t.A.X + t.B.X + t.C.X) / 3
+	y := (t.A.Y + t.B.Y + t.C.Y) / 3
+	return Point{X: x, Y: y}
 }
 
-func GetIncenter(x1, y1, x2, y2, x3, y3 float64) (float64, float64) {
-	a := CalcDistance(x2, y2, x3, y3)
-	b := CalcDistance(x1, y1, x3, y3)
-	c := CalcDistance(x1, y1, x2, y2)
+func (t *Triangle) Incenter() Point {
+	A := Line{t.B, t.C}
+	a := A.Length()
+	B := Line{t.A, t.C}
+	b := B.Length()
+	C := Line{t.A, t.B}
+	c := C.Length()
 
-	x := (a * x1 + b * x2 + c * x3) / (a + b + c)
-	y := (a * y1 + b * y2 + c * y3) / (a + b + c)
+	x := (a*t.A.X + b*t.B.X + c*t.C.X) / (a + b + c)
+	y := (a*t.A.Y + b*t.B.Y + c*t.C.Y) / (a + b + c)
 
-	return x, y
+	return Point{X: x, Y: y}
 }
 
-func GetCircumcenter(x1, y1, x2, y2, x3, y3 float64) (float64, float64) {
-	t := math.Pow(x1, 2) + math.Pow(y1, 2) - math.Pow(x2, 2) - math.Pow(y2, 2)
+func (t *Triangle) Circumcenter() Point {
+	x1 := t.A.X
+	y1 := t.A.Y
+	x2 := t.B.X
+	y2 := t.B.Y
+	x3 := t.C.X
+	y3 := t.C.Y
+	T := math.Pow(x1, 2) + math.Pow(y1, 2) - math.Pow(x2, 2) - math.Pow(y2, 2)
 	u := math.Pow(x1, 2) + math.Pow(y1, 2) - math.Pow(x3, 2) - math.Pow(y3, 2)
-	J := (x1 - x2) * (y1 - y3) - (x1 - x3) * (y1 - y2)
+	J := (x1-x2)*(y1-y3) - (x1-x3)*(y1-y2)
 
-	x := ((-1 * (y1 - y2)) * u + (y1 - y3) * t) / (2 * J)
-	y := ((x1 - x2) * u - (x1 - x3) * t) / (2 * J)
+	x := ((-1*(y1-y2))*u + (y1-y3)*T) / (2 * J)
+	y := ((x1-x2)*u - (x1-x3)*T) / (2 * J)
 
-	return x, y
+	return Point{X: x, Y: y}
 }

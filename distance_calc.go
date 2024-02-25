@@ -4,7 +4,7 @@ import (
 	"math"
 )
 
-func (l *Line) length() float64 {
+func (l *Line) Length() float64 {
 	/*
 		Calculates the distance between two points using the distance formula.
 	*/

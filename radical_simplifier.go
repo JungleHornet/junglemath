@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-func (r *Radical) SimplifyRadical() string {
+func (r *Radical) Simplify() string {
 
 	rootCoefficient := r.Coef
 	simpleRootInt := r.Rad
