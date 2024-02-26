@@ -17,6 +17,7 @@ JungleMath is a Go library made for doing advanced Math functions. To try it out
     - Line
     - Triangle
     - Radical
+    - Angle
 
 ### Coming soon??:
 - **Trigonometric functions**

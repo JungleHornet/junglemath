@@ -1,3 +1,21 @@
+/*
+	JungleMath - A Go library for advanced Math operations
+    Copyright (C) 2024  JungleHornet
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 package junglemath
 
 import (
@@ -49,4 +67,16 @@ func (t *Triangle) Circumcenter() Point {
 	y := ((x1-x2)*u - (x1-x3)*T) / (2 * J)
 
 	return Point{X: x, Y: y}
+}
+
+func (a *Angle) Measure() float64 {
+	A := Line{a.B, a.C}
+	B := Line{a.A, a.C}
+	C := Line{a.A, a.B}
+
+	cc := C.Length()
+	bb := B.Length()
+	aa := A.Length()
+
+	return math.Acos((math.Pow(bb, 2) + math.Pow(cc, 2) - math.Pow(aa, 2)) / (2 * bb * cc))
 }
