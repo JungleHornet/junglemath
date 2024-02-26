@@ -1,3 +1,9 @@
+## Looking for an open source project to get started developing open source for?
+### Feel free to fork and add whatever math functions you want, including adding some of the "Coming soon??" features!
+**I do ask that you please use the current format of types and methods when adding new features!**
+
+# Okay, so what ***is*** JungleMath?
+
 JungleMath is a Go library made for doing advanced Math functions. To try it out in action check out JungleCalculator below!
 
 ### Currently implemented features:
@@ -37,7 +43,7 @@ JungleCalculator: [https://github.com/junglehornet/jungle-calculator](https://gi
 ---
 
 JungleMath
-Copyright (C) 2024  JungleHornet
+Copyright (c) 2023-present  JungleHornet
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
