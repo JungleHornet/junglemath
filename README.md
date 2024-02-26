@@ -34,6 +34,8 @@ JungleMath is a Go library made for doing advanced Math functions. To try it out
 
 JungleCalculator: [https://github.com/junglehornet/jungle-calculator](https://github.com/junglehornet/jungle-calculator)
 
+---
+
 JungleMath
 Copyright (C) 2024  JungleHornet
 
