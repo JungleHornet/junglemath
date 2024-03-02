@@ -2,12 +2,12 @@ package junglemath
 
 import (
 	"fmt"
+	"github.com/junglehornet/goScan"
 	"math"
 	"regexp"
 	"strconv"
 	"strings"
 	"text/scanner"
-	"github.com/junglehornet/goScan"
 )
 
 func OpenCalculator() {
@@ -28,9 +28,11 @@ func OpenCalculator() {
 	normalChars := "0123456789"
 
 	for inpt != "q" {
-		if !strings.Contains(normalChars, string([]rune(inpt)[0])) {
-			if !first {
-				inpt = ans + inpt
+		if inpt != "" {
+			if !strings.Contains(normalChars, string([]rune(inpt)[0])) {
+				if !first {
+					inpt = ans + inpt
+				}
 			}
 		}
 		ans = strconv.FormatFloat(Solve(inpt), 'f', -1, 64)
@@ -126,7 +128,10 @@ func Solve(equation string) float64 {
 		result := strconv.FormatFloat(num1-num2, 'f', -1, 64)
 		equation = strings.Replace(equation, minus[0], result, -1)
 	}
-	ans, _ := strconv.ParseFloat(equation, 64)
+	ans, err := strconv.ParseFloat(equation, 64)
+	if err != nil {
+		return 0
+	}
 	return ans
 }
 
@@ -193,7 +198,7 @@ func SolveRoots(equation string) string {
 
 func Root(x, y float64) float64 {
 	/*
-	Returns x√y
+		Returns x√y
 	*/
 	exp := 1 / x
 	ans := math.Pow(y, exp)
