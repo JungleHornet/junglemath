@@ -2,7 +2,7 @@ package junglemath
 
 import (
 	"fmt"
-	"github.com/junglehornet/goScan"
+	goscan "github.com/junglehornet/goscan"
 	"math"
 	"regexp"
 	"strconv"
@@ -21,7 +21,7 @@ func OpenCalculator() {
 		To Divide: /
 		To # Root: #r<number>
 	*/
-	s := goScan.NewScanner()
+	s := goscan.NewScanner()
 	inpt := s.ReadLine()
 	first := true
 	var ans string
