@@ -50,3 +50,15 @@ func (t *Triangle) Circumcenter() Point {
 
 	return Point{X: x, Y: y}
 }
+
+func (a *Angle) Measure() float64 {
+	A := Line{a.B, a.C}
+	B := Line{a.A, a.C}
+	C := Line{a.A, a.B}
+
+	cc := C.Length()
+	bb := B.Length()
+	aa := A.Length()
+
+	return math.Acos((math.Pow(bb, 2) + math.Pow(cc, 2) - math.Pow(aa, 2)) / (2 * bb * cc))
+}

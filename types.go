@@ -12,6 +12,10 @@ type Triangle struct {
 	A, B, C Point
 }
 
+type Angle struct {
+	A, B, C Point
+}
+
 type Radical struct {
 	Coef int64
 	Rad  float64
