@@ -50,3 +50,12 @@ func CreateRoot(inpt float64) (Radical, bool) {
 
 	return sqrtRoot, true
 }
+
+func Root(x, y float64) float64 {
+	/*
+		Returns x√y
+	*/
+	exp := 1 / x
+	ans := math.Pow(y, exp)
+	return ans
+}

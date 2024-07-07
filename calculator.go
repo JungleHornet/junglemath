@@ -190,12 +190,3 @@ func SolveOperator(equation string, operator int) string {
 	}
 	return equation
 }
-
-func Root(x, y float64) float64 {
-	/*
-		Returns x√y
-	*/
-	exp := 1 / x
-	ans := math.Pow(y, exp)
-	return ans
-}
