@@ -78,9 +78,8 @@ func Solve(equation string) float64 {
 	equation = SolveOperator(equation, 5)
 	solved = false
 	regex4 := regexp.MustCompile(`(-?\d*\.?\d*)min(-?\d*\.?\d*)`)
-	for !solved {
+	for {
 		if !strings.Contains(equation, "min") {
-			solved = true
 			break
 		}
 		minus := regex4.FindStringSubmatch(equation)
