@@ -3,6 +3,7 @@ package junglemath
 import (
 	"fmt"
 	goscan "github.com/junglehornet/goscan"
+	"log"
 	"math"
 	"regexp"
 	"strconv"
@@ -16,10 +17,15 @@ func OpenCalculator() {
 		Enter "q" to exit.
 
 		To Add: +
+			Ex. 2+4 = 6
 		To Subtract: -
+			Ex. 2-4 = -2
 		To Multiply: *
+			Ex. 2*4 = 8
 		To Divide: /
+			Ex. 2/4 = 0.5
 		To # Root: #r<number>
+			Ex. 2r4 = 2
 	*/
 	s := goscan.NewScanner()
 	inpt := s.ReadLine()
@@ -63,58 +69,11 @@ func Solve(equation string) float64 {
 			solved = true
 		}
 	}
-	solved = false
-	expRegex := regexp.MustCompile(`(-?\d*\.?\d*)\^(-?\d*\.?\d*)`)
-	for !solved {
-		if !strings.Contains(equation, "^") {
-			solved = true
-			break
-		}
-		exp := expRegex.FindStringSubmatch(equation)
-		num1, _ := strconv.ParseFloat(exp[1], 64)
-		num2, _ := strconv.ParseFloat(exp[2], 64)
-		result := strconv.FormatFloat(math.Pow(num1, num2), 'f', -1, 64)
-		equation = strings.Replace(equation, exp[0], result, -1)
-	}
-	solved = false
-	regex1 := regexp.MustCompile(`(-?\d*\.?\d*)\*(-?\d*\.?\d*)`)
-	for !solved {
-		if !strings.Contains(equation, "*") {
-			solved = true
-			break
-		}
-		mult := regex1.FindStringSubmatch(equation)
-		num1, _ := strconv.ParseFloat(mult[1], 64)
-		num2, _ := strconv.ParseFloat(mult[2], 64)
-		result := strconv.FormatFloat(num1*num2, 'f', -1, 64)
-		equation = strings.Replace(equation, mult[0], result, -1)
-	}
-	solved = false
-	regex2 := regexp.MustCompile(`(-?\d*\.?\d*)/(-?\d*\.?\d*)`)
-	for !solved {
-		if !strings.Contains(equation, "/") {
-			solved = true
-			break
-		}
-		div := regex2.FindStringSubmatch(equation)
-		num1, _ := strconv.ParseFloat(div[1], 64)
-		num2, _ := strconv.ParseFloat(div[2], 64)
-		result := strconv.FormatFloat(num1/num2, 'f', -1, 64)
-		equation = strings.Replace(equation, div[0], result, -1)
-	}
-	solved = false
-	regex3 := regexp.MustCompile(`(-?\d*\.?\d*)\+(-?\d*\.?\d*)`)
-	for !solved {
-		if !strings.Contains(equation, "+") {
-			solved = true
-			break
-		}
-		plus := regex3.FindStringSubmatch(equation)
-		num1, _ := strconv.ParseFloat(plus[1], 64)
-		num2, _ := strconv.ParseFloat(plus[2], 64)
-		result := strconv.FormatFloat(num1+num2, 'f', -1, 64)
-		equation = strings.Replace(equation, plus[0], result, -1)
-	}
+	equation = SolveOperator(equation, 1)
+	equation = SolveOperator(equation, 2)
+	equation = SolveOperator(equation, 3)
+	equation = SolveOperator(equation, 4)
+	equation = SolveOperator(equation, 5)
 	solved = false
 	regex4 := regexp.MustCompile(`(-?\d*\.?\d*)min(-?\d*\.?\d*)`)
 	for !solved {
@@ -137,7 +96,7 @@ func Solve(equation string) float64 {
 
 func PrepEquation(equation string) string {
 	equation = "(" + equation + ")"
-	equation = SolveRoots(equation)
+	equation = SolveOperator(equation, 0)
 	re := regexp.MustCompile(`\((-?\d*\.?\d*)`)
 	res := re.FindString(equation)
 	newRes := strings.Replace(res, "-", "neg", -1)
@@ -179,19 +138,55 @@ func GetParentheses(inpt string) (string, bool) {
 	return inParantheses, true
 }
 
-func SolveRoots(equation string) string {
-	solved := false
-	rootRegex := regexp.MustCompile(`(-?\d*\.?\d*)?r(-?\d*\.?\d*)`)
-	for !solved {
-		if !strings.Contains(equation, "r") {
-			solved = true
+func SolveOperator(equation string, operator int) string {
+	var opSymbol string
+	var opRegex string
+	switch operator {
+	case 0:
+		opRegex = `?r`
+		opSymbol = "r"
+	case 1:
+		opRegex = `\^`
+		opSymbol = "^"
+	case 2:
+		opRegex = `\*`
+		opSymbol = "*"
+	case 3:
+		opRegex = `/`
+		opSymbol = "/"
+	case 4:
+		opRegex = `\+`
+		opSymbol = "+"
+	case 5:
+		opRegex = `min`
+		opSymbol = "min"
+	default:
+		log.Fatal("Error: Invalid operator " + strconv.Itoa(operator) + " passed to SolveOperator")
+	}
+	Regex := regexp.MustCompile(`(-?\d*\.?\d*)` + opRegex + `(-?\d*\.?\d*)`)
+	for {
+		if !strings.Contains(equation, opSymbol) {
 			break
 		}
-		root := rootRegex.FindStringSubmatch(equation)
-		num1, _ := strconv.ParseFloat(root[1], 64)
-		num2, _ := strconv.ParseFloat(root[2], 64)
-		result := strconv.FormatFloat(Root(num1, num2), 'f', -1, 64)
-		equation = strings.Replace(equation, root[0], result, -1)
+		operation := Regex.FindStringSubmatch(equation)
+		num1, _ := strconv.ParseFloat(operation[1], 64)
+		num2, _ := strconv.ParseFloat(operation[2], 64)
+		var result string
+		switch operator {
+		case 0:
+			result = strconv.FormatFloat(Root(num1, num2), 'f', -1, 64)
+		case 1:
+			result = strconv.FormatFloat(math.Pow(num1, num2), 'f', -1, 64)
+		case 2:
+			result = strconv.FormatFloat(num1*num2, 'f', -1, 64)
+		case 3:
+			result = strconv.FormatFloat(num1/num2, 'f', -1, 64)
+		case 4:
+			result = strconv.FormatFloat(num1+num2, 'f', -1, 64)
+		case 5:
+			result = strconv.FormatFloat(num1-num2, 'f', -1, 64)
+		}
+		equation = strings.Replace(equation, operation[0], result, -1)
 	}
 	return equation
 }
