@@ -26,6 +26,8 @@ func OpenCalculator() {
 			Ex. 2/4 = 0.5
 		To # Root: #r<number>
 			Ex. 2r4 = 2
+
+		This calculator environment is very basic and more of a template/example, so you are encouraged to make your own with some more polish, features, etc.
 	*/
 	s := goscan.NewScanner()
 	inpt := s.ReadLine()
@@ -42,7 +44,7 @@ func OpenCalculator() {
 			}
 		}
 		ans = strconv.FormatFloat(Solve(inpt), 'f', -1, 64)
-		fmt.Println("=" + ans)
+		fmt.Println("= " + ans)
 		first = false
 		inpt = s.ReadLine()
 	}
