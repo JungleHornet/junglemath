@@ -13,7 +13,7 @@ import (
 
 func OpenCalculator() {
 	/*
-		Opens a calculator where you can solve equations with order of operations like 8 * (2*3 + 4).
+		Opens a calculator where you can solve equations with order of operations like 8 * (2/3 + 4).
 		Enter "q" to exit.
 
 		To Add: +
@@ -52,7 +52,18 @@ func OpenCalculator() {
 
 func Solve(equation string) float64 {
 	/*
-		Solves an equation with order of operations like 8 * (2*3 + 4).
+		Solves an equation with order of operations like 8 * (2/3 + 4).
+  
+  		To Add: +
+			Ex. 2+4 = 6
+		To Subtract: -
+			Ex. 2-4 = -2
+		To Multiply: *
+			Ex. 2*4 = 8
+		To Divide: /
+			Ex. 2/4 = 0.5
+		To # Root: #r<number>
+			Ex. 2r4 = 2
 	*/
 	equation = strings.ReplaceAll(equation, " ", "")
 	equation = PrepEquation(equation)
