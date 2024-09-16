@@ -1,5 +1,5 @@
 module github.com/junglehornet/junglemath
 
-go 1.21
+go 1.22
 
-require github.com/junglehornet/goscan v1.0.1
+require github.com/junglehornet/goscan v1.0.2

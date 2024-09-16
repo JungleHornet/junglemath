@@ -2,7 +2,7 @@ package junglemath
 
 import (
 	"fmt"
-	goscan "github.com/junglehornet/goscan"
+	"github.com/junglehornet/goscan"
 	"log"
 	"math"
 	"regexp"
