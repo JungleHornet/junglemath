@@ -2,13 +2,14 @@ package junglemath
 
 import (
 	"fmt"
-	"github.com/junglehornet/goscan"
 	"log"
 	"math"
 	"regexp"
 	"strconv"
 	"strings"
 	"text/scanner"
+
+	"github.com/junglehornet/goscan"
 )
 
 func OpenCalculator() {
@@ -33,11 +34,10 @@ func OpenCalculator() {
 	inpt := s.ReadLine()
 	first := true
 	var ans string
-	normalChars := "0123456789"
 
 	for inpt != "q" {
 		if inpt != "" {
-			if !strings.Contains(normalChars, string([]rune(inpt)[0])) {
+			if !strings.Contains(Digits, string([]rune(inpt)[0])) {
 				if !first {
 					inpt = ans + inpt
 				}
@@ -48,6 +48,133 @@ func OpenCalculator() {
 		first = false
 		inpt = s.ReadLine()
 	}
+}
+
+func PrepEquation(equation string) string {
+	equation = "(" + equation + ")"
+	equation = SolveOperator(equation, 0)
+	re := regexp.MustCompile(`\((-?\d*\.?\d*)`)
+	res := re.FindString(equation)
+	newRes := strings.Replace(res, "-", "neg", -1)
+	equation = strings.Replace(equation, res, newRes, -1)
+	equation = strings.Replace(equation, "-", "min", -1)
+	equation = strings.Replace(equation, "neg", "-", -1)
+	equation = strings.TrimPrefix(equation, "(")
+	equation = strings.TrimSuffix(equation, ")")
+	return equation
+}
+
+func GetParentheses(inpt string) (string, bool) {
+	if !strings.Contains(inpt, "(") {
+		return "", false
+	}
+	var s scanner.Scanner
+	s.Init(strings.NewReader(inpt))
+	var inParantheses string
+	var paranMode int
+	paranMode = 0
+
+	for token := s.Scan(); token != scanner.EOF; token = s.Scan() {
+		text := s.TokenText()
+		if text == ")" {
+			paranMode -= 1
+			if paranMode == 0 {
+				break
+			}
+		}
+		if paranMode > 0 {
+			inParantheses += text
+		}
+
+		if text == "(" {
+			paranMode += 1
+		}
+
+	}
+	return inParantheses, true
+}
+
+func SeparateVars(equation string, varName string) (string, float64) {
+	equation = strings.ReplaceAll(equation, " ", "")
+	equation = PrepEquation(equation)
+	_, isParentheses := GetParentheses(equation)
+	var bottom bool
+	if isParentheses {
+		bottom = false
+	} else {
+		bottom = true
+	}
+	var varAmount float64
+	for !bottom {
+	inParentheses, isParentheses := GetParentheses(equation)
+	if !isParentheses {
+		bottom = true
+		break
+	}
+	innerEquation, varAmount := SeparateVars(inParentheses, varName)
+	index := strings.Index(equation, "("+inParentheses+")")
+	if index != -1 && index != 0 {
+	if strings.Contains(Digits, string(equation[index-1])) {
+		coefficient, _ := strconv.ParseFloat(string(equation[index-1]), 64)
+		varAmount *= float64(coefficient)
+	}
+}
+	equation = strings.Replace(equation, "("+inParentheses+")", innerEquation, -1)
+}
+return equation, varAmount
+}
+
+func SolveOperator(equation string, operator int) string {
+	var opSymbol string
+	var opRegex string
+	switch operator {
+	case 0:
+		opRegex = `?r`
+		opSymbol = "r"
+	case 1:
+		opRegex = `\^`
+		opSymbol = "^"
+	case 2:
+		opRegex = `\*`
+		opSymbol = "*"
+	case 3:
+		opRegex = `/`
+		opSymbol = "/"
+	case 4:
+		opRegex = `\+`
+		opSymbol = "+"
+	case 5:
+		opRegex = `min`
+		opSymbol = "min"
+	default:
+		log.Fatal("Error: Invalid operator " + strconv.Itoa(operator) + " passed to SolveOperator")
+	}
+	Regex := regexp.MustCompile(`(-?\d*\.?\d*)` + opRegex + `(-?\d*\.?\d*)`)
+	for {
+		if !strings.Contains(equation, opSymbol) {
+			break
+		}
+		operation := Regex.FindStringSubmatch(equation)
+		num1, _ := strconv.ParseFloat(operation[1], 64)
+		num2, _ := strconv.ParseFloat(operation[2], 64)
+		var result string
+		switch operator {
+		case 0:
+			result = strconv.FormatFloat(Root(num1, num2), 'f', -1, 64)
+		case 1:
+			result = strconv.FormatFloat(math.Pow(num1, num2), 'f', -1, 64)
+		case 2:
+			result = strconv.FormatFloat(num1*num2, 'f', -1, 64)
+		case 3:
+			result = strconv.FormatFloat(num1/num2, 'f', -1, 64)
+		case 4:
+			result = strconv.FormatFloat(num1+num2, 'f', -1, 64)
+		case 5:
+			result = strconv.FormatFloat(num1-num2, 'f', -1, 64)
+		}
+		equation = strings.Replace(equation, operation[0], result, -1)
+	}
+	return equation
 }
 
 func Solve(equation string) float64 {
@@ -106,99 +233,20 @@ func Solve(equation string) float64 {
 	return ans
 }
 
-func PrepEquation(equation string) string {
-	equation = "(" + equation + ")"
-	equation = SolveOperator(equation, 0)
-	re := regexp.MustCompile(`\((-?\d*\.?\d*)`)
-	res := re.FindString(equation)
-	newRes := strings.Replace(res, "-", "neg", -1)
-	equation = strings.Replace(equation, res, newRes, -1)
-	equation = strings.Replace(equation, "-", "min", -1)
-	equation = strings.Replace(equation, "neg", "-", -1)
-	equation = strings.TrimPrefix(equation, "(")
-	equation = strings.TrimSuffix(equation, ")")
-	return equation
-}
+func SolveVar(equation string) float64 {
+	/*
+		Solves for x or another variable when given an equation such as 8(x-2) = 16 + x.
+		Returns 0.0 if more than one = sign is present in the equation.
 
-func GetParentheses(inpt string) (string, bool) {
-	if !strings.Contains(inpt, "(") {
-		return "", false
+  		Same operators as Solve() are used.
+	*/
+
+	equations := strings.Split(equation, "=")
+	if len(equations) > 2 {
+		return 0.0
 	}
-	var s scanner.Scanner
-	s.Init(strings.NewReader(inpt))
-	var inParantheses string
-	var paranMode int
-	paranMode = 0
 
-	for token := s.Scan(); token != scanner.EOF; token = s.Scan() {
-		text := s.TokenText()
-		if text == ")" {
-			paranMode -= 1
-			if paranMode == 0 {
-				break
-			}
-		}
-		if paranMode > 0 {
-			inParantheses += text
-		}
+	
 
-		if text == "(" {
-			paranMode += 1
-		}
-
-	}
-	return inParantheses, true
-}
-
-func SolveOperator(equation string, operator int) string {
-	var opSymbol string
-	var opRegex string
-	switch operator {
-	case 0:
-		opRegex = `?r`
-		opSymbol = "r"
-	case 1:
-		opRegex = `\^`
-		opSymbol = "^"
-	case 2:
-		opRegex = `\*`
-		opSymbol = "*"
-	case 3:
-		opRegex = `/`
-		opSymbol = "/"
-	case 4:
-		opRegex = `\+`
-		opSymbol = "+"
-	case 5:
-		opRegex = `min`
-		opSymbol = "min"
-	default:
-		log.Fatal("Error: Invalid operator " + strconv.Itoa(operator) + " passed to SolveOperator")
-	}
-	Regex := regexp.MustCompile(`(-?\d*\.?\d*)` + opRegex + `(-?\d*\.?\d*)`)
-	for {
-		if !strings.Contains(equation, opSymbol) {
-			break
-		}
-		operation := Regex.FindStringSubmatch(equation)
-		num1, _ := strconv.ParseFloat(operation[1], 64)
-		num2, _ := strconv.ParseFloat(operation[2], 64)
-		var result string
-		switch operator {
-		case 0:
-			result = strconv.FormatFloat(Root(num1, num2), 'f', -1, 64)
-		case 1:
-			result = strconv.FormatFloat(math.Pow(num1, num2), 'f', -1, 64)
-		case 2:
-			result = strconv.FormatFloat(num1*num2, 'f', -1, 64)
-		case 3:
-			result = strconv.FormatFloat(num1/num2, 'f', -1, 64)
-		case 4:
-			result = strconv.FormatFloat(num1+num2, 'f', -1, 64)
-		case 5:
-			result = strconv.FormatFloat(num1-num2, 'f', -1, 64)
-		}
-		equation = strings.Replace(equation, operation[0], result, -1)
-	}
-	return equation
+	return 1
 }

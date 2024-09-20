@@ -20,3 +20,6 @@ type Radical struct {
 	Coef int64
 	Rad  float64
 }
+
+var Digits = "0123456789"
+var Operators = "+-*/^r"
