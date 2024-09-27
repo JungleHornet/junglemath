@@ -111,16 +111,51 @@ func SeparateVars(equation string, varName string) (string, float64) {
 		bottom = true
 		break
 	}
-	innerEquation, varAmount := SeparateVars(inParentheses, varName)
+	innerEquation, innerVarAmount := SeparateVars(inParentheses, varName)
 	index := strings.Index(equation, "("+inParentheses+")")
+	innerSolution := 1.0
+	coefficient := 1.0
 	if index != -1 && index != 0 {
-	if strings.Contains(Digits, string(equation[index-1])) {
-		coefficient, _ := strconv.ParseFloat(string(equation[index-1]), 64)
-		varAmount *= float64(coefficient)
+		coefString := ""
+	for ;strings.Contains(Digits, string(equation[index-1])); index-- {
+		coefString = string(equation[index-1]) + coefString
 	}
+	coefficient, _ = strconv.ParseFloat(coefString, 64)
+	varAmount *= coefficient
+	varAmount += innerVarAmount*coefficient
+	innerSolution = Solve(innerEquation)
 }
-	equation = strings.Replace(equation, "("+inParentheses+")", innerEquation, -1)
+equation = strings.Replace(equation, strconv.FormatFloat(coefficient, 'f', -1, 64)+"("+inParentheses+")", strconv.FormatFloat(innerSolution*coefficient, 'f', -1, 64), -1)
 }
+re := regexp.MustCompile(`((min|\+?)\d*\.?\d*)` + varName)
+for loop := 0; loop < 102; loop++ {
+	if !strings.Contains(equation, varName) {
+		break
+	}
+	match := re.FindStringSubmatch(equation)
+	if len(match) == 3 && match[1] != match[2] {
+	varCoef, err := strconv.ParseFloat(strings.Replace(strings.Replace(match[1], "min", "-", -1), "+", "", -1), 64)
+	if err != nil {
+		log.Fatal("Error: Invalid variablee " + varName + " passed to SeparateVars")
+	}
+	varAmount += varCoef
+	equation = strings.Replace(equation, match[0], "", -1)
+} else if match[1] == match[2] {
+	varCoef := 1.0
+	if match[1] == "+" {
+		varCoef = 1.0
+	} else if match[1] == "min" {
+		varCoef = -1.0
+	}
+	fmt.Println(varAmount)
+	varAmount += varCoef
+	fmt.Println(varAmount)
+	equation = strings.Replace(equation, match[0], "", -1)
+} else {
+	log.Fatal("Error: Invalid variable " + varName + " passed to SeparateVars")
+}
+}
+equation = strings.Trim(equation, Operators)
 return equation, varAmount
 }
 
