@@ -54,7 +54,12 @@ func CreateRoot(inpt float64) (Radical, bool) {
 func Root(x, y float64) float64 {
 	/*
 		Returns x√y
+		Does not support imaginary numbers, will return 0 if y < 0
 	*/
+
+	if y <= 0 {
+		return 0
+	}
 	exp := 1 / x
 	ans := math.Pow(y, exp)
 	return ans

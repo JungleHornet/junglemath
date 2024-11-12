@@ -1,6 +1,7 @@
 package junglemath
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"math"
@@ -43,16 +44,24 @@ func OpenCalculator() {
 				}
 			}
 		}
-		ans = strconv.FormatFloat(Solve(inpt), 'f', -1, 64)
+		solved, err := Solve(inpt)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		ans = strconv.FormatFloat(solved, 'f', -1, 64)
 		fmt.Println("= " + ans)
 		first = false
 		inpt = s.ReadLine()
 	}
 }
 
-func PrepEquation(equation string) string {
+func PrepEquation(equation string) (string, error) {
 	equation = "(" + equation + ")"
-	equation = SolveOperator(equation, 0)
+	equation, err := SolveOperator(equation, 0)
+	if err != nil {
+		return "", err
+	}
 	re := regexp.MustCompile(`\((-?\d*\.?\d*)`)
 	res := re.FindString(equation)
 	newRes := strings.Replace(res, "-", "neg", -1)
@@ -61,7 +70,7 @@ func PrepEquation(equation string) string {
 	equation = strings.Replace(equation, "neg", "-", -1)
 	equation = strings.TrimPrefix(equation, "(")
 	equation = strings.TrimSuffix(equation, ")")
-	return equation
+	return equation, nil
 }
 
 func GetParentheses(inpt string) (string, bool) {
@@ -94,9 +103,12 @@ func GetParentheses(inpt string) (string, bool) {
 	return inParantheses, true
 }
 
-func SeparateVars(equation string, varName string) (string, float64) {
+func SeparateVars(equation string, varName string) (string, float64, error) {
 	equation = strings.ReplaceAll(equation, " ", "")
-	equation = PrepEquation(equation)
+	equation, err := PrepEquation(equation)
+	if err != nil {
+		return "", 0, err
+	}
 	_, isParentheses := GetParentheses(equation)
 	var bottom bool
 	if isParentheses {
@@ -111,7 +123,10 @@ func SeparateVars(equation string, varName string) (string, float64) {
 		bottom = true
 		break
 	}
-	innerEquation, innerVarAmount := SeparateVars(inParentheses, varName)
+	innerEquation, innerVarAmount, err := SeparateVars(inParentheses, varName)
+	if err != nil {
+		return "", 0, err
+	}
 	index := strings.Index(equation, "("+inParentheses+")")
 	innerSolution := 1.0
 	coefficient := 1.0
@@ -120,15 +135,22 @@ func SeparateVars(equation string, varName string) (string, float64) {
 	for ;strings.Contains(Digits, string(equation[index-1])); index-- {
 		coefString = string(equation[index-1]) + coefString
 	}
-	coefficient, _ = strconv.ParseFloat(coefString, 64)
+	coefficient, err = strconv.ParseFloat(coefString, 64)
+	if err != nil {
+		return "", 0, err
+	}
 	varAmount *= coefficient
 	varAmount += innerVarAmount*coefficient
-	innerSolution = Solve(innerEquation)
+	var err error
+	innerSolution, err = Solve(innerEquation)
+	if err != nil {
+		return "", 0, err
+	}
 }
 equation = strings.Replace(equation, strconv.FormatFloat(coefficient, 'f', -1, 64)+"("+inParentheses+")", strconv.FormatFloat(innerSolution*coefficient, 'f', -1, 64), -1)
 }
 re := regexp.MustCompile(`((min|\+?)\d*\.?\d*)` + varName)
-for loop := 0; loop < 102; loop++ {
+for {
 	if !strings.Contains(equation, varName) {
 		break
 	}
@@ -147,19 +169,18 @@ for loop := 0; loop < 102; loop++ {
 	} else if match[1] == "min" {
 		varCoef = -1.0
 	}
-	fmt.Println(varAmount)
 	varAmount += varCoef
-	fmt.Println(varAmount)
 	equation = strings.Replace(equation, match[0], "", -1)
 } else {
 	log.Fatal("Error: Invalid variable " + varName + " passed to SeparateVars")
 }
 }
 equation = strings.Trim(equation, Operators)
-return equation, varAmount
+equation = strings.ReplaceAll(equation, "min", "-")
+return equation, varAmount, nil
 }
 
-func SolveOperator(equation string, operator int) string {
+func SolveOperator(equation string, operator int) (string, error) {
 	var opSymbol string
 	var opRegex string
 	switch operator {
@@ -184,17 +205,24 @@ func SolveOperator(equation string, operator int) string {
 	default:
 		log.Fatal("Error: Invalid operator " + strconv.Itoa(operator) + " passed to SolveOperator")
 	}
-	Regex := regexp.MustCompile(`(-?\d*\.?\d*)` + opRegex + `(-?\d*\.?\d*)`)
+	regex := regexp.MustCompile(`(-?\d*\.?\d*)` + opRegex + `(-?\d*\.?\d*)`)
 	for {
 		if !strings.Contains(equation, opSymbol) {
 			break
 		}
-		operation := Regex.FindStringSubmatch(equation)
-		num1, _ := strconv.ParseFloat(operation[1], 64)
-		num2, _ := strconv.ParseFloat(operation[2], 64)
+		operation := regex.FindStringSubmatch(equation)
+		num1, err := strconv.ParseFloat(operation[1], 64)
+		if err != nil {
+			return "", err
+		}
+		num2, err := strconv.ParseFloat(operation[2], 64)
+		if err != nil {
+			return "", err
+		}
 		var result string
 		switch operator {
 		case 0:
+			if operation[1] == "" { num1 = 1 }
 			result = strconv.FormatFloat(Root(num1, num2), 'f', -1, 64)
 		case 1:
 			result = strconv.FormatFloat(math.Pow(num1, num2), 'f', -1, 64)
@@ -209,10 +237,10 @@ func SolveOperator(equation string, operator int) string {
 		}
 		equation = strings.Replace(equation, operation[0], result, -1)
 	}
-	return equation
+	return equation, nil
 }
 
-func Solve(equation string) float64 {
+func Solve(equation string) (float64, error) {
 	/*
 		Solves an equation with order of operations like 8 * (2/3 + 4).
   
@@ -228,7 +256,10 @@ func Solve(equation string) float64 {
 			Ex. 2r4 = 2
 	*/
 	equation = strings.ReplaceAll(equation, " ", "")
-	equation = PrepEquation(equation)
+	equation, err := PrepEquation(equation)
+	if err != nil {
+		return 0, err
+	}
 	_, isParentheses := GetParentheses(equation)
 	var solved bool
 	if isParentheses {
@@ -238,17 +269,50 @@ func Solve(equation string) float64 {
 	}
 	for !solved {
 		inParentheses, _ := GetParentheses(equation)
-		ans := Solve(inParentheses)
-		equation = strings.Replace(equation, "("+inParentheses+")", strconv.FormatFloat(ans, 'f', -1, 64), -1)
+		ans, err := Solve(inParentheses)
+		if err != nil {
+			return 0, err
+		}
+		coefIndex := strings.Index(equation, inParentheses) - 2
+		coef := ""
+		if string(equation[coefIndex]) == "-" {
+			ans *= -1
+			coef = "-"
+		} else if strings.Contains(Digits, string(equation[coefIndex])) {
+			regex := regexp.MustCompile(`(-?\d*\.?\d*)\(` + inParentheses + `\)`)
+			match := regex.FindStringSubmatch(equation)
+			coef = match[1]
+			coefFloat, err := strconv.ParseFloat(coef, 64)
+			if err != nil {
+				return 0, err
+			}
+			ans *= coefFloat
+		}
+		equation = strings.Replace(equation, coef+"("+inParentheses+")", strconv.FormatFloat(ans, 'f', -1, 64), -1)
 		if !strings.Contains(equation, "(") {
 			solved = true
 		}
 	}
-	equation = SolveOperator(equation, 1)
-	equation = SolveOperator(equation, 2)
-	equation = SolveOperator(equation, 3)
-	equation = SolveOperator(equation, 4)
-	equation = SolveOperator(equation, 5)
+	equation, err = SolveOperator(equation, 1)
+	if err != nil {
+		return 0, err
+	}
+	equation, err = SolveOperator(equation, 2)
+	if err != nil {
+		return 0, err
+	}
+	equation, err = SolveOperator(equation, 3)
+	if err != nil {
+		return 0, err
+	}
+	equation, err = SolveOperator(equation, 4)
+	if err != nil {
+		return 0, err
+	}
+	equation, err = SolveOperator(equation, 5)
+	if err != nil {
+		return 0, err
+	}
 	solved = false
 	regex4 := regexp.MustCompile(`(-?\d*\.?\d*)min(-?\d*\.?\d*)`)
 	for {
@@ -263,25 +327,75 @@ func Solve(equation string) float64 {
 	}
 	ans, err := strconv.ParseFloat(equation, 64)
 	if err != nil {
-		return 0
+		return 0, err
 	}
-	return ans
+	return ans, nil
 }
 
-func SolveVar(equation string) float64 {
+func SolveVar(equation string) (float64, error) {
 	/*
 		Solves for x or another variable when given an equation such as 8(x-2) = 16 + x.
 		Returns 0.0 if more than one = sign is present in the equation.
 
   		Same operators as Solve() are used.
+
+		Returns float64 equal to x and an error:
+		error returned when there is more than one equals sign in the equation
+		error returned when there is infinite solutions
+		error returned when there is no solution
+
+		If the error is not nil, disregard the float64.
 	*/
 
-	equations := strings.Split(equation, "=")
-	if len(equations) > 2 {
-		return 0.0
+	varName := "x"
+	for _, char := range equation {
+		if !strings.Contains(Operators, string(char)) && !strings.Contains(Digits, string(char)) {
+			varName = string(char)
+			break
+		}
 	}
 
+	if !strings.Contains(equation, "=") {return 0.0, errors.New("error: no equals sign present in the equation")}
+	equations := strings.Split(equation, "=")
+	if len(equations) > 2 {
+		return 0.0, errors.New("error: more than one equals sign is present is the equation")
+	}
+	leftVal, leftVars, err := SeparateVars(equations[0], varName)
+	if err != nil {
+		return 0, err
+	}
+	rightVal, rightVars, err := SeparateVars(equations[1], varName)
+	if err != nil {
+		return 0, err
+	}
+
+	if leftVars == rightVars {
+		if leftVal == rightVal {
+			return 0.0, errors.New("error: equation has infinite solutions")
+		}
+		return 0.0, errors.New("error: equation has no solutions")
+	}
+
+	var ans float64
+	rightVal = strings.ReplaceAll(rightVal, "min", "-")
+	leftVal = strings.ReplaceAll(leftVal, "min", "-")
+	if leftVars > rightVars {
+		leftVars -= rightVars
+		fmt.Println(rightVal + "-(" + leftVal + ")")
+		ans, err = Solve(rightVal + "-(" + leftVal + ")")
+		if err != nil {
+			return 0, err
+		}
+		ans /= leftVars
+	} else {
+		rightVars -= leftVars
+		ans, err = Solve(leftVal + "-(" + rightVal + ")")
+		ans /= rightVars
+		if err != nil {
+			return 0, err
+		}
+	}
 	
 
-	return 1
+	return ans, nil
 }
