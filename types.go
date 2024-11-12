@@ -21,5 +21,9 @@ type Radical struct {
 	Rad  float64
 }
 
+type Matrix struct{
+	Matrix [][]float64
+}
+
 var Digits = "0123456789"
 var Operators = "+-*/^r"
